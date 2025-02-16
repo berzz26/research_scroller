@@ -34,7 +34,7 @@ export default function ScienceSnippets() {
       setStartIndex(response.nextStart);
       setCurrentTopic(response.papers[0]?.topic);
       
-      // Scroll to top on initial load
+      // Only scroll to top on initial load
       if (isInitialLoad && containerRef.current) {
         containerRef.current.scrollTop = 0;
       }
@@ -47,14 +47,12 @@ export default function ScienceSnippets() {
 
   const handleObserver = useCallback((entries: IntersectionObserverEntry[]) => {
     const target = entries[0];
-    // Only load more if we've scrolled down and the initial load is complete
     if (target.isIntersecting && !loading && hasMore && initialLoadComplete.current) {
       loadMorePapers(false);
     }
   }, [loading, hasMore]);
 
   useEffect(() => {
-    // Initial load
     if (!initialLoadComplete.current) {
       loadMorePapers(true);
       initialLoadComplete.current = true;
@@ -72,10 +70,10 @@ export default function ScienceSnippets() {
       observerRef.current.observe(loadingRef.current);
     }
 
-    // Ensure scroll position is at top
-    if (containerRef.current) {
-      containerRef.current.scrollTop = 0;
-    }
+    // Remove this line that was resetting scroll position on every useEffect run
+    // if (containerRef.current) {
+    //   containerRef.current.scrollTop = 0;
+    // }
 
     return () => {
       if (observerRef.current) {
@@ -108,13 +106,13 @@ export default function ScienceSnippets() {
   return (
     <div 
       ref={containerRef}
-      className="w-full max-w-xl mx-auto h-[calc(100dvh-13rem)] md:h-[calc(100dvh-16rem)] overflow-y-auto snap-y snap-mandatory scroll-smooth px-2 md:px-0"
+      className="w-full max-w-xl mx-auto h-[calc(100dvh-13rem)] md:h-[calc(100dvh-16rem)] overflow-y-auto scroll-smooth px-2 md:px-0"
     >
       <div className="space-y-4 pb-4">
         {papers.map((paper, index) => (
           <div
             key={`${paper.title}-${index}`}
-            className="snap-start min-h-[calc(100dvh-13rem)] md:min-h-[calc(100dvh-16rem)] flex items-center"
+            className="flex items-center mb-4"
           >
             <Card className="w-full shadow-md">
               <CardContent className="p-3 md:p-5 h-[calc(100dvh-15rem)] md:h-[calc(100dvh-18rem)] flex flex-col">
@@ -126,7 +124,7 @@ export default function ScienceSnippets() {
         
         <div 
           ref={loadingRef} 
-          className="h-12 flex items-center justify-center snap-start"
+          className="h-12 flex items-center justify-center"
         >
           {loading ? (
             <p className="text-xs md:text-sm text-muted-foreground">Loading more papers...</p>

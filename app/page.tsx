@@ -10,11 +10,11 @@ export default function Home() {
           <div className="flex items-center gap-3 mb-2 md:mb-4">
             <BookOpen className="w-8 h-8 md:w-10 md:h-10 text-primary" />
             <h1 className="text-3xl md:text-4xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-primary to-primary/70">
-              ResearchFlow
+              PaperTrail
             </h1>
           </div>
           <p className="text-sm md:text-lg text-muted-foreground max-w-xl px-4">
-            Discover cutting-edge computer science research papers with our infinite scrolling feed.
+            Swipe up to feel both inspired and completely out of your depth.
           </p>
         </div>
 
