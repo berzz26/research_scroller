@@ -25,7 +25,14 @@ export default function Home() {
 
         {/* Footer */}
         <footer className="py-2 md:py-4 text-center text-xs md:text-sm text-muted-foreground">
-          <p>Powered by arXiv API • Updated daily</p>
+          <p>
+            Powered by arXiv API • <a href="https://x.com/Aum21686697" target="_blank" style={{ textDecoration: "none", display: "inline-flex", alignItems: "center" }}>
+              
+              Built by - @berzzv?
+              </a>  
+            
+          </p>
+
         </footer>
       </div>
     </main>
