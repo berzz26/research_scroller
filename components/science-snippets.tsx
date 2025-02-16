@@ -20,9 +20,10 @@ export default function ScienceSnippets() {
   const containerRef = useRef<HTMLDivElement>(null);
   const observerRef = useRef<IntersectionObserver>();
   const loadingRef = useRef<HTMLDivElement>(null);
+  const initialLoadComplete = useRef(false);
 
-  const loadMorePapers = async () => {
-    if (loading || !hasMore) return;
+  const loadMorePapers = async (isInitialLoad = false) => {
+    if (loading || (!hasMore && !isInitialLoad)) return;
     
     try {
       setLoading(true);
@@ -33,6 +34,10 @@ export default function ScienceSnippets() {
       setStartIndex(response.nextStart);
       setCurrentTopic(response.papers[0]?.topic);
       
+      // Scroll to top on initial load
+      if (isInitialLoad && containerRef.current) {
+        containerRef.current.scrollTop = 0;
+      }
     } catch (error) {
       console.error("Error loading papers:", error);
     } finally {
@@ -42,12 +47,19 @@ export default function ScienceSnippets() {
 
   const handleObserver = useCallback((entries: IntersectionObserverEntry[]) => {
     const target = entries[0];
-    if (target.isIntersecting && !loading && hasMore) {
-      loadMorePapers();
+    // Only load more if we've scrolled down and the initial load is complete
+    if (target.isIntersecting && !loading && hasMore && initialLoadComplete.current) {
+      loadMorePapers(false);
     }
   }, [loading, hasMore]);
 
   useEffect(() => {
+    // Initial load
+    if (!initialLoadComplete.current) {
+      loadMorePapers(true);
+      initialLoadComplete.current = true;
+    }
+
     const option = {
       root: null,
       rootMargin: "20px",
@@ -60,6 +72,11 @@ export default function ScienceSnippets() {
       observerRef.current.observe(loadingRef.current);
     }
 
+    // Ensure scroll position is at top
+    if (containerRef.current) {
+      containerRef.current.scrollTop = 0;
+    }
+
     return () => {
       if (observerRef.current) {
         observerRef.current.disconnect();
@@ -67,38 +84,40 @@ export default function ScienceSnippets() {
     };
   }, [handleObserver]);
 
-  useEffect(() => {
-    loadMorePapers();
-  }, []);
-
   const formatPaper = (paper: ResearchPaper) => {
     return (
-      <>
-        <h2 className="text-xl font-bold mb-4 line-clamp-2">{paper.title}</h2>
-        <div className="space-y-4">
-          <p className="text-sm text-muted-foreground">Topic: {paper.topic}</p>
-          <div className="space-y-2">
-            <p className="font-semibold">Abstract:</p>
-            <p className="text-sm">{paper.abstract}</p>
+      <div className="flex flex-col h-full">
+        <h2 className="text-base md:text-lg font-bold mb-2 md:mb-3 line-clamp-3">
+          {paper.title}
+        </h2>
+        <div className="space-y-2 flex-1 overflow-y-auto">
+          <p className="text-xs md:text-sm text-muted-foreground">
+            Topic: {paper.topic}
+          </p>
+          <div className="space-y-1">
+            <p className="font-medium text-xs md:text-sm">Abstract:</p>
+            <p className="text-xs md:text-sm leading-relaxed">
+              {paper.abstract}
+            </p>
           </div>
         </div>
-      </>
+      </div>
     );
   };
 
   return (
     <div 
       ref={containerRef}
-      className="w-full max-w-2xl mx-auto h-screen overflow-y-auto snap-y snap-mandatory scroll-smooth px-4"
+      className="w-full max-w-xl mx-auto h-[calc(100dvh-13rem)] md:h-[calc(100dvh-16rem)] overflow-y-auto snap-y snap-mandatory scroll-smooth px-2 md:px-0"
     >
-      <div className="py-4 space-y-4">
+      <div className="space-y-4 pb-4">
         {papers.map((paper, index) => (
           <div
             key={`${paper.title}-${index}`}
-            className="snap-start min-h-[calc(100vh-2rem)] flex items-center"
+            className="snap-start min-h-[calc(100dvh-13rem)] md:min-h-[calc(100dvh-16rem)] flex items-center"
           >
-            <Card className="w-full">
-              <CardContent className="p-6 overflow-y-auto max-h-[calc(100vh-8rem)]">
+            <Card className="w-full shadow-md">
+              <CardContent className="p-3 md:p-5 h-[calc(100dvh-15rem)] md:h-[calc(100dvh-18rem)] flex flex-col">
                 {formatPaper(paper)}
               </CardContent>
             </Card>
@@ -107,14 +126,14 @@ export default function ScienceSnippets() {
         
         <div 
           ref={loadingRef} 
-          className="h-20 flex items-center justify-center snap-start"
+          className="h-12 flex items-center justify-center snap-start"
         >
           {loading ? (
-            <p className="text-center">Loading more papers...</p>
+            <p className="text-xs md:text-sm text-muted-foreground">Loading more papers...</p>
           ) : hasMore ? (
-            <ArrowDownCircle className="animate-bounce" />
+            <ArrowDownCircle className="w-5 h-5 md:w-6 md:h-6 animate-bounce text-muted-foreground" />
           ) : (
-            <p className="text-center text-muted-foreground">No more papers to load</p>
+            <p className="text-xs md:text-sm text-muted-foreground">No more papers to load</p>
           )}
         </div>
       </div>
