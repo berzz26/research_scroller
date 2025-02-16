@@ -131,7 +131,7 @@ export default function ScienceSnippets() {
           ) : hasMore ? (
             <ArrowDownCircle className="w-5 h-5 md:w-6 md:h-6 animate-bounce text-muted-foreground" />
           ) : (
-            <p className="text-xs md:text-sm text-muted-foreground">No more papers to load</p>
+            <p className="text-xs md:text-sm text-muted-foreground">No more papers to load, refresh instead</p>
           )}
         </div>
       </div>
